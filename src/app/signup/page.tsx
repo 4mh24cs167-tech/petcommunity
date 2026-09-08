@@ -22,8 +22,8 @@ export default function SignupPage() {
     if (error) {
       alert(error.message);
     } else {
-      alert('Check your email for the confirmation link!');
-      router.push('/login');
+      alert('Verification code sent to your email!');
+      router.push('/auth/verify');
     }
     setLoading(false);
   };

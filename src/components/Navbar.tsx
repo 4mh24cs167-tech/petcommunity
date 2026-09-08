@@ -9,8 +9,25 @@ import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkUser() {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsAuth(!!user);
+    }
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuth(!!session);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const handleSignOut = async () => {
     try {
@@ -49,21 +66,40 @@ export default function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
-              >
-                {link.name}
-              </Link>
-            ))}
-            <button
-              onClick={handleSignOut}
-              className="px-4 py-1.5 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all"
-            >
-              Sign Out
-            </button>
+            {isAuth ? (
+              <>
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+                <button
+                  onClick={handleSignOut}
+                  className="px-4 py-1.5 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
+                >
+                  Log In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="px-4 py-1.5 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -88,22 +124,43 @@ export default function Navbar() {
             className="md:hidden bg-white border-b border-gray-100 overflow-hidden"
           >
             <div className="px-6 py-8 space-y-4">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block py-3 text-lg font-medium text-gray-600 hover:text-black transition"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <button
-                onClick={handleSignOut}
-                className="w-full py-3 text-lg font-bold text-red-600 text-left"
-              >
-                Sign Out
-              </button>
+              {isAuth ? (
+                <>
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block py-3 text-lg font-medium text-gray-600 hover:text-black transition"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full py-3 text-lg font-bold text-red-600 text-left"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col space-y-4">
+                  <Link
+                    href="/login"
+                    className="block py-3 text-lg font-medium text-gray-600 hover:text-black transition"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    href="/signup"
+                    className="block py-3 text-lg font-bold text-black transition"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    Sign Up
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}
