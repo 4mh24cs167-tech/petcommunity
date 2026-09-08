@@ -13,8 +13,14 @@ export default function Navbar() {
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/login');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      router.push('/login');
+    } catch (error: any) {
+      console.error('Sign out error:', error);
+      alert(`Sign out failed: ${error.message}`);
+    }
   };
 
   const navLinks = [

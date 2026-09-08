@@ -75,8 +75,14 @@ export default function ProfilePage() {
         <h1 className="text-4xl font-black text-gray-900 tracking-tight">My <span className="text-teal-600">Profile</span></h1>
         <button
           onClick={async () => {
-            await supabase.auth.signOut();
-            router.push('/login');
+            try {
+              const { error } = await supabase.auth.signOut();
+              if (error) throw error;
+              router.push('/login');
+            } catch (error: any) {
+              console.error('Sign out error:', error);
+              alert(`Sign out failed: ${error.message}`);
+            }
           }}
           className="px-6 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition"
         >
