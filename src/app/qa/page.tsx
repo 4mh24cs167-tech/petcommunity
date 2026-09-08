@@ -66,10 +66,20 @@ export default function QAPage() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    async function loadQA() {
+    async function init() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuth(false);
+        router.push('/login');
+        return;
+      }
+      setIsAuth(true);
+
       const { data, error } = await supabase
         .from('questions')
         .select(`
@@ -85,8 +95,8 @@ export default function QAPage() {
       }
       setLoading(false);
     }
-    loadQA();
-  }, [supabase]);
+    init();
+  }, [supabase, router]);
 
   const askQuestion = async (e: React.FormEvent) => {
     e.preventDefault();

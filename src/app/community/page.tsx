@@ -65,10 +65,20 @@ export default function CommunityFeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isAuth, setIsAuth] = useState<boolean | null>(null);
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    async function loadPosts() {
+    async function init() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsAuth(false);
+        router.push('/login');
+        return;
+      }
+      setIsAuth(true);
+
       const { data, error } = await supabase
         .from('community_posts')
         .select(`
@@ -85,8 +95,8 @@ export default function CommunityFeedPage() {
       }
       setLoading(false);
     }
-    loadPosts();
-  }, [supabase]);
+    init();
+  }, [supabase, router]);
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
