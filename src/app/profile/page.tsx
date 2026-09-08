@@ -147,7 +147,7 @@ export default function ProfilePage() {
           >
             Sign Out
           </motion.button>
-        </div >
+        </div>
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
@@ -330,9 +330,9 @@ export default function ProfilePage() {
               </AnimatePresence>
             </div>
           </div>
-        </div >
-      </div >
-    </div >
+        </div>
+      </div>
+    </div>
 
     <AnimatePresence>
       {showUpload && (
