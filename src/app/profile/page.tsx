@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, MapPin, Camera, Plus, Heart, Activity, Trash2, Edit3, ChevronRight, ShieldCheck, Zap, Award } from 'lucide-react';
 import Link from 'next/link';
+import PetAnimation from '@/components/PetAnimation';
+import { PET_SPRINGS } from '@/lib/motion-variants';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -73,7 +75,9 @@ export default function ProfilePage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-black text-gray-900 tracking-tight">My <span className="text-teal-600">Profile</span></h1>
-        <button
+        <motion.button
+          whileTap={{ scale: 0.92 }}
+          transition={PET_SPRINGS.pounce}
           onClick={async () => {
             try {
               const { error } = await supabase.auth.signOut();
@@ -87,14 +91,14 @@ export default function ProfilePage() {
           className="px-6 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition"
         >
           Sign Out
-        </button>
+        </motion.button>
       </div >
 
       {/* Bento Grid Layout */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
 
         {/* User Identity Card - Wide Bento */}
-        <div className="md:col-span-8 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group">
+        <PetAnimation pattern="nudge" className="md:col-span-8 bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden group">
           <div className="h-32 bg-gradient-to-r from-teal-500 to-blue-600" />
           <div className="px-8 pb-8 -mt-12 relative">
             <div className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6">
@@ -129,10 +133,10 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-        </div>
+        </PetAnimation>
 
         {/* Settings Card - Small Bento */}
-        <div className="md:col-span-4 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
+        <PetAnimation pattern="nudge" className="md:col-span-4 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
           <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
             <Edit3 className="h-5 w-5 text-teal-500" />
             <span>Quick Edit</span>
@@ -165,23 +169,30 @@ export default function ProfilePage() {
                 className="w-full px-4 py-2 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-teal-500 transition text-sm"
               />
             </div>
-            <button type="submit" className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition shadow-lg shadow-gray-200 text-sm">
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              transition={PET_SPRINGS.pounce}
+              type="submit"
+              className="w-full py-3 bg-gray-900 text-white rounded-xl font-bold hover:bg-black transition shadow-lg shadow-gray-200 text-sm"
+            >
               Update Profile
-            </button>
+            </motion.button>
           </form>
-        </div>
+        </PetAnimation>
 
         {/* Pets Section - Full Width Bento */}
         <div className="md:col-span-12 space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-2xl font-black text-gray-900">My <span className="text-teal-600">Pet Family</span></h2>
-            <button
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              transition={PET_SPRINGS.pounce}
               onClick={() => router.push('/profile/add-pet')}
               className="flex items-center space-x-2 px-5 py-2 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-700 transition shadow-lg shadow-teal-100"
             >
               <Plus className="h-4 w-4" />
               <span>Add New Pet</span>
-            </button>
+            </motion.button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -197,11 +208,9 @@ export default function ProfilePage() {
                 </motion.div>
               ) : (
                 pets.map((pet, idx) => (
-                  <motion.div
+                  <PetAnimation
                     key={pet.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: idx * 0.1 }}
+                    pattern="pounce"
                     className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 group hover:shadow-xl transition-all space-y-6"
                   >
                     <div className="flex justify-between items-start">
@@ -247,7 +256,7 @@ export default function ProfilePage() {
                         <ChevronRight className="h-3 w-3" />
                       </Link>
                     </div>
-                  </motion.div>
+                  </PetAnimation>
                 ))
               )}
             </AnimatePresence>

@@ -15,6 +15,8 @@ import {
   Smile,
   ArrowRight
 } from 'lucide-react';
+import PetAnimation from '@/components/PetAnimation';
+import { PET_SPRINGS } from '@/lib/motion-variants';
 
 const FloatingPet = ({ emoji, delay, x, y, duration = 6 }: { emoji: string, delay: number, x: string, y: string, duration?: number }) => (
   <motion.div
@@ -35,6 +37,27 @@ const FloatingPet = ({ emoji, delay, x, y, duration = 6 }: { emoji: string, dela
     style={{ left: x, top: y }}
   >
     {emoji}
+  </motion.div>
+);
+
+const AmbientPaw = ({ delay, x, y }: { delay: number, x: string, y: string }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{
+      opacity: [0, 0.1, 0],
+      y: [0, -100],
+      x: [0, 20, -20, 0],
+    }}
+    transition={{
+      duration: 15,
+      repeat: Infinity,
+      delay,
+      ease: "linear"
+    }}
+    className="absolute text-4xl pointer-events-none z-0 text-teal-300/30"
+    style={{ left: x, top: y }}
+  >
+    🐾
   </motion.div>
 );
 
@@ -112,6 +135,10 @@ export default function CommunityFeedPage() {
         <FloatingPet emoji="🐈" delay={1} x="85%" y="10%" duration={8} />
         <FloatingPet emoji="🦜" delay={2} x="10%" y="65%" duration={7} />
         <FloatingPet emoji="🐇" delay={3} x="80%" y="75%" duration={9} />
+
+        <AmbientPaw delay={0} x="20%" y="70%" />
+        <AmbientPaw delay={6} x="60%" y="30%" />
+        <AmbientPaw delay={12} x="80%" y="80%" />
       </div>
 
       <div className="max-w-4xl mx-auto px-6 relative z-10 pt-32 space-y-16">
@@ -171,7 +198,8 @@ export default function CommunityFeedPage() {
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={{ scale: 0.92 }}
+                  transition={PET_SPRINGS.pounce}
                   type="submit"
                   className="group px-8 py-3 bg-black text-white rounded-full font-bold hover:bg-gray-800 transition-all shadow-xl flex items-center space-x-3"
                 >
@@ -198,11 +226,9 @@ export default function CommunityFeedPage() {
           <div className="space-y-6">
             <AnimatePresence>
               {posts.map((post, idx) => (
-                <motion.div
+                <PetAnimation
                   key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
+                  pattern="pounce"
                   className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500 group relative"
                 >
                   <div className="space-y-6">
@@ -254,7 +280,7 @@ export default function CommunityFeedPage() {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </PetAnimation>
               ))}
             </AnimatePresence>
           </div>
