@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { createClient } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X } from 'lucide-react';
@@ -20,7 +20,6 @@ export default function HospitalMapView() {
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    // Note: The API Key should be added to .env.local as NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
   });
 
@@ -33,24 +32,27 @@ export default function HospitalMapView() {
     loadHospitals();
   }, [supabase]);
 
-  if (loading) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
-    </div>
-  );
-
-  if (!isLoaded) return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="text-center space-y-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
-        <p className="text-gray-500 font-medium">Loading Google Maps...</p>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="text-gray-500 font-medium">Loading Google Maps...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden bg-gray-50">
-      {/* Map Header Overlay */}
       <div className="absolute top-6 left-6 z-10 flex flex-col space-y-4 w-full max-w-md px-6 pointer-events-none">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -74,32 +76,38 @@ export default function HospitalMapView() {
             <Layers className="h-4 w-4 text-gray-600" />
           </button>
           <div className="flex bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <button className="p-2 hover:bg-gray-50 border-r border-gray-100 transition"><ZoomIn className="h-4 w-4 text-gray-600" /></button>
-            <button className="p-2 hover:bg-gray-50 transition"><ZoomOut className="h-4 w-4 text-gray-600" /></button>
+            <button className="p-2 hover:bg-gray-50 border-r border-gray-100 transition">
+              <ZoomIn className="h-4 w-4 text-gray-600" />
+            </button>
+            <button className="p-2 hover:bg-gray-50 transition">
+              <ZoomOut className="h-4 w-4 text-gray-600" />
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Google Map Integration */}
       <div className="relative flex-grow bg-slate-200 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '40px 40px' }}
+        />
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 w-full h-1 bg-slate-400 rotate-1"></div>
+          <div className="absolute left-1/3 h-full w-1 bg-slate-400 -rotate-3"></div>
+          <div className="absolute top-2/3 w-full h-1 bg-slate-400 rotate-2"></div>
+          <div className="absolute right-1/4 h-full w-1 bg-slate-400 rotate-1"></div>
+        </div>
+
         <GoogleMap
           mapContainerStyle={containerStyle}
-          center={{ lat: 40.7128, lng: -74.0060 }} // Default center (NYC), would be dynamic in prod
+          center={{ lat: 40.7128, lng: -74.0060 }}
           zoom={12}
           options={{
             disableDefaultUI: true,
             zoomControl: false,
             styles: [
-              {
-                "featureType": "all",
-                "elementType": "labels.text.fill",
-                "stylers": [{ "color": "#616161" }]
-              },
-              {
-                "featureType": "water",
-                "elementType": "geometry",
-                "stylers": [{ "color": "#e9e9e9" }]
-              }
+              { "featureType": "all", "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
+              { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#e9e9e9" }] }
             ]
           }}
         >
@@ -116,7 +124,6 @@ export default function HospitalMapView() {
         </GoogleMap>
       </div>
 
-      {/* Right Side Detail Panel */}
       <AnimatePresence>
         {selectedHospital && (
           <motion.div
@@ -192,8 +199,8 @@ export default function HospitalMapView() {
               </div>
             </div>
           </motion.div>
-        </AnimatePresence>
-      </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
