@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { Menu, X, Dog, Heart, Hospital, Users, MessageSquare, UserCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, Dog, Heart, Hospital, Users, MessageSquare, UserCircle, Bell, ShoppingBag, Crown } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -46,6 +46,8 @@ export default function Navbar() {
     { name: 'Health', href: '/hospitals', icon: Hospital },
     { name: 'Community', href: '/community', icon: Users },
     { name: 'QA', href: '/qa', icon: MessageSquare },
+    { name: 'Market', href: '/marketplace', icon: ShoppingBag },
+    { name: 'Premium', href: '/premium', icon: Crown },
     { name: 'Profile', href: '/profile', icon: UserCircle },
   ];
 
@@ -77,6 +79,13 @@ export default function Navbar() {
                     {link.name}
                   </Link>
                 ))}
+                <Link
+                  href="/notifications"
+                  className="relative p-2 text-gray-500 hover:text-black transition-colors"
+                >
+                  <Bell className="h-5 w-5" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-teal-500 rounded-full border-2 border-white"></span>
+                </Link>
                 <button
                   onClick={handleSignOut}
                   className="px-4 py-1.5 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all"

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X, Heart } from 'lucide-react';
+import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X, Heart, Calendar } from 'lucide-react';
 
 const containerStyle = {
   width: '100%',
@@ -16,6 +17,7 @@ export default function HospitalMapView() {
   const [selectedHospital, setSelectedHospital] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
   const supabase = createClient();
 
   const { isLoaded } = useJsApiLoader({
@@ -188,14 +190,23 @@ export default function HospitalMapView() {
                 </div>
               </div>
 
-              <div className="pt-4 flex space-x-3">
-                <button className="flex-grow py-3 bg-teal-600 text-white rounded-2xl font-bold hover:bg-teal-700 transition shadow-lg shadow-teal-100 flex items-center justify-center space-x-2">
-                  <Navigation className="h-4 w-4" />
-                  <span>Get Directions</span>
+              <div className="pt-4 flex flex-col space-y-3">
+                <button
+                  onClick={() => router.push(`/hospitals/book/${selectedHospital.id}`)}
+                  className="w-full py-4 bg-teal-600 text-white rounded-2xl font-bold hover:bg-teal-700 transition shadow-lg shadow-teal-100 flex items-center justify-center space-x-2"
+                >
+                  <Calendar className="h-5 w-5" />
+                  <span>Book Appointment</span>
                 </button>
-                <button className="p-3 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 transition">
-                  <Heart className="h-5 w-5" />
-                </button>
+                <div className="flex space-x-3">
+                  <button className="flex-grow py-3 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition flex items-center justify-center space-x-2">
+                    <Navigation className="h-4 w-4" />
+                    <span>Directions</span>
+                  </button>
+                  <button className="p-3 bg-gray-100 text-gray-600 rounded-2xl hover:bg-gray-200 transition">
+                    <Heart className="h-5 w-5" />
+                  </button>
+                </div>
               </div>
             </div>
           </motion.div>
