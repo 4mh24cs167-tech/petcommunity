@@ -1,8 +1,8 @@
 export const PET_SPRINGS = {
-  pounce: { type: 'spring', stiffness: 400, damping: 15 }, // Snappy, high energy
-  wag: { type: 'spring', stiffness: 100, damping: 10 },    // Soft, rhythmic
-  nudge: { type: 'spring', stiffness: 200, damping: 20 },   // Balanced, organic
-  zoomies: { type: 'spring', stiffness: 500, damping: 12 },  // Fast, aggressive
+  pounce: { type: 'spring' as const, stiffness: 400, damping: 15 }, // Snappy, high energy
+  wag: { type: 'spring' as const, stiffness: 100, damping: 10 },    // Soft, rhythmic
+  nudge: { type: 'spring' as const, stiffness: 200, damping: 20 },   // Balanced, organic
+  zoomies: { type: 'spring' as const, stiffness: 500, damping: 12 },  // Fast, aggressive
 };
 
 export const PET_VARIANTS = {
@@ -13,7 +13,7 @@ export const PET_VARIANTS = {
       scale: 1,
       y: 0,
       transition: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 400,
         damping: 15
       }
@@ -25,7 +25,7 @@ export const PET_VARIANTS = {
       transition: {
         duration: 2,
         repeat: Infinity,
-        ease: 'easeInOut'
+        ease: 'easeInOut' as const
       }
     }
   },
@@ -33,7 +33,7 @@ export const PET_VARIANTS = {
     hover: {
       y: -5,
       rotate: 1,
-      transition: { type: 'spring', stiffness: 200, damping: 20 }
+      transition: { type: 'spring' as const, stiffness: 200, damping: 20 }
     }
   }
 };
