@@ -4,22 +4,22 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Heart, Hospital, Users, MessageSquare, Dog, ShieldCheck, Sparkles, ArrowRight, Cat, Bird } from 'lucide-react';
 
-const FloatingPet = ({ emoji, delay, x, y }: { emoji: string, delay: number, x: string, y: string }) => (
+const FloatingPet = ({ emoji, delay, x, y, duration = 6 }: { emoji: string, delay: number, x: string, y: string, duration?: number }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0 }}
     animate={{
-      opacity: [0.2, 0.5, 0.2],
-      scale: [1, 1.2, 1],
-      y: [0, -20, 0],
-      x: [0, 10, 0],
+      opacity: [0.1, 0.4, 0.1],
+      scale: [1, 1.1, 1],
+      y: [0, -30, 0],
+      x: [0, 20, 0],
     }}
     transition={{
-      duration: 5 + Math.random() * 2,
+      duration,
       repeat: Infinity,
       delay,
       ease: "easeInOut"
     }}
-    className="absolute text-6xl pointer-events-none z-0"
+    className="absolute text-7xl pointer-events-none z-0 filter blur-[1px] opacity-50"
     style={{ left: x, top: y }}
   >
     {emoji}
@@ -28,52 +28,46 @@ const FloatingPet = ({ emoji, delay, x, y }: { emoji: string, delay: number, x: 
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-[#FDFCFB] overflow-hidden selection:bg-teal-100 selection:text-teal-900">
-      {/* Background Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-br from-teal-100/40 to-transparent blur-3xl" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-gradient-to-tl from-orange-100/40 to-transparent blur-3xl" />
+    <div className="min-h-screen bg-[#FCFAF8] text-black selection:bg-teal-100 selection:text-teal-900 overflow-x-hidden">
+      {/* Immersive Background */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] rounded-full bg-teal-100/30 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] rounded-full bg-orange-100/30 blur-[120px]" />
 
-        {/* Floating Pets */}
-        <FloatingPet emoji="🐕" delay={0} x="10%" y="15%" />
-        <FloatingPet emoji="🐈" delay={1} x="85%" y="10%" />
-        <FloatingPet emoji="🦜" delay={2} x="15%" y="60%" />
-        <FloatingPet emoji="🐇" delay={3} x="80%" y="70%" />
-        <FloatingPet emoji="🐕‍🦺" delay={4} x="45%" y="30%" />
-        <FloatingPet emoji="🐈‍⬛" delay={5} x="60%" y="80%" />
+        <FloatingPet emoji="🐕" delay={0} x="5%" y="15%" />
+        <FloatingPet emoji="🐈" delay={1} x="85%" y="10%" duration={8} />
+        <FloatingPet emoji="🦜" delay={2} x="10%" y="65%" duration={7} />
+        <FloatingPet emoji="🐇" delay={3} x="80%" y="75%" duration={9} />
+        <FloatingPet emoji="🐕‍🦺" delay={4} x="40%" y="20%" duration={6} />
+        <FloatingPet emoji="🐈‍⬛" delay={5} x="65%" y="85%" duration={10} />
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - Ultra Modern */}
       <section className="relative pt-32 pb-24 z-10">
         <div className="max-w-6xl mx-auto px-6 text-center space-y-12">
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-xs font-medium tracking-tight shadow-sm"
+            className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-md border border-gray-200 text-gray-500 text-xs font-bold uppercase tracking-widest shadow-sm"
           >
             <Sparkles className="h-3 w-3 text-teal-500" />
-            <span className="uppercase font-bold">Pet Community 2.0</span>
+            <span>The Gold Standard of Pet Networking</span>
           </motion.div>
 
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-7xl md:text-9xl font-black text-gray-900 tracking-tighter leading-[0.9]"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="space-y-4"
           >
-            The Pet <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 via-blue-600 to-purple-600">Universe.</span>
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl text-gray-500 max-w-3xl mx-auto leading-relaxed font-light"
-          >
-            Connecting hearts, paws, and scales. An ultra-modern hub for matching,
-            healing, and sharing the joy of pet ownership.
-          </motion.p>
+            <h1 className="text-7xl md:text-9xl font-black tracking-tighter leading-[0.9] text-black">
+              Pets <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-blue-600">Reimagined.</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-gray-500 max-w-2xl mx-auto font-light leading-relaxed">
+              A curated digital sanctuary for the modern pet parent.
+              Find compatibility, elite care, and a community of kindred spirits.
+            </p>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -83,109 +77,108 @@ export default function HomePage() {
           >
             <Link
               href="/signup"
-              className="group relative px-10 py-4 bg-black text-white rounded-full font-bold hover:bg-gray-800 transition-all hover:scale-105 flex items-center space-x-2 shadow-2xl"
+              className="group relative px-10 py-5 bg-black text-white rounded-full font-bold hover:bg-gray-800 transition-all hover:scale-105 shadow-2xl flex items-center space-x-3"
             >
-              <span>Join the Pack</span>
+              <span>Join the Inner Circle</span>
               <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/breeds"
-              className="px-10 py-4 bg-white text-black border border-gray-200 rounded-full font-bold hover:bg-gray-50 transition-all hover:scale-105"
+              className="px-10 py-5 bg-white text-black border border-gray-200 rounded-full font-bold hover:bg-gray-50 transition-all hover:scale-105 shadow-sm"
             >
-              Breed Directory
+              Discover Breeds
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* The "Graphical" Feature Grid */}
+      {/* Luxury Bento Grid - "Instagram Style" */}
       <section className="max-w-7xl mx-auto px-6 py-32 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
 
-          {/* Large Feature: Matching - Now with " laura-style" glassmorphism */}
-          <div className="md:col-span-8 group relative overflow-hidden bg-white/60 backdrop-blur-md rounded-[48px] p-12 border border-white shadow-xl hover:shadow-2xl transition-all">
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 bg-red-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-red-200">
-                <Heart className="h-7 w-7" />
+          {/* Feature 1: Matching - Immersive Large Card */}
+          <div className="md:col-span-8 group relative overflow-hidden bg-white rounded-[50px] p-12 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+            <div className="relative z-10 space-y-8">
+              <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center shadow-inner">
+                <Heart className="h-8 w-8" />
               </div>
-              <h3 className="text-4xl font-black text-gray-900 tracking-tight">Smart Matching</h3>
-              <p className="text-gray-600 text-lg max-w-md leading-relaxed">
-                Our AI-driven compatibility engine connects pets based on temperament,
-                energy levels, and genetic health.
+              <h3 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tight">Intelligent <br /> Matchmaking</h3>
+              <p className="text-gray-500 text-lg max-w-md leading-relaxed font-light">
+                Our bespoke algorithm analyzes genetic traits and temperament to find the perfect companion for your pet.
               </p>
               <Link href="/matches" className="inline-flex items-center space-x-2 text-red-500 font-bold hover:text-red-600 pt-4 group">
-                <span>Find Your Match</span>
+                <span className="underline underline-offset-4">Begin Discovery</span>
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
-            <div className="absolute right-[-5%] bottom-[-5%] opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none">
+            <div className="absolute right-[-10%] bottom-[-10%] opacity-10 group-hover:opacity-20 transition-opacity pointer-events-none rotate-12">
               <Heart className="h-96 w-96" />
             </div>
           </div>
 
-          {/* Medium Feature: Hospitals */}
-          <div className="md:col-span-4 group relative overflow-hidden bg-white/60 backdrop-blur-md rounded-[48px] p-12 border border-white shadow-xl hover:shadow-2xl transition-all">
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 bg-teal-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-teal-200">
-                <Hospital className="h-7 w-7" />
+          {/* Feature 2: Hospitals - Vertical Card */}
+          <div className="md:col-span-4 group relative overflow-hidden bg-white rounded-[50px] p-12 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+            <div className="relative z-10 space-y-8">
+              <div className="w-16 h-16 bg-teal-50 text-teal-500 rounded-3xl flex items-center justify-center shadow-inner">
+                <Hospital className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-black text-gray-900 tracking-tight">Health Hub</h3>
-              <p className="text-gray-600 text-base leading-relaxed">
-                Curated network of verified specialty clinics and emergency care.
+              <h3 className="text-3xl font-black text-gray-900 tracking-tight">Elite Care</h3>
+              <p className="text-gray-500 text-base leading-relaxed font-light">
+                Instant access to a curated network of verified specialty clinics.
               </p>
               <Link href="/hospitals" className="inline-flex items-center space-x-2 text-teal-600 font-bold hover:text-teal-700 pt-4">
-                <span>Locate Vets</span>
+                <span className="underline underline-offset-4">Find Clinics</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </div>
 
-          {/* Small Feature: Community */}
-          <div className="md:col-span-4 group relative overflow-hidden bg-white/60 backdrop-blur-md rounded-[48px] p-12 border border-white shadow-xl hover:shadow-2xl transition-all">
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 bg-blue-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-blue-200">
-                <Users className="h-7 w-7" />
+          {/* Feature 3: Community */}
+          <div className="md:col-span-4 group relative overflow-hidden bg-white rounded-[50px] p-12 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+            <div className="relative z-10 space-y-8">
+              <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center shadow-inner">
+                <Users className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-black text-gray-900 tracking-tight">The Pack</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                A shared space for pet owners to exchange wisdom and stories.
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight">The Collective</h3>
+              <p className="text-gray-500 text-sm leading-relaxed font-light">
+                A shared space for high-end pet storytelling and expert advice.
               </p>
               <Link href="/community" className="inline-flex items-center space-x-2 text-blue-600 font-bold hover:text-blue-700 pt-4">
-                <span>Join Feed</span>
+                <span className="underline underline-offset-4">Enter Feed</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </div>
 
-          {/* Small Feature: QA */}
-          <div className="md:col-span-4 group relative overflow-hidden bg-white/60 backdrop-blur-md rounded-[48px] p-12 border border-white shadow-xl hover:shadow-2xl transition-all">
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 bg-orange-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-orange-200">
-                <MessageSquare className="h-7 w-7" />
+          {/* Feature 4: QA */}
+          <div className="md:col-span-4 group relative overflow-hidden bg-white rounded-[50px] p-12 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+            <div className="relative z-10 space-y-8">
+              <div className="w-16 h-16 bg-orange-50 text-orange-500 rounded-3xl flex items-center justify-center shadow-inner">
+                <MessageSquare className="h-8 w-8" />
               </div>
-              <h3 className="text-2xl font-black text-gray-900 tracking-tight">Expert Advice</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Direct access to certified animal health professionals.
+              <h3 className="text-2xl font-black text-gray-900 tracking-tight">Expert QA</h3>
+              <p className="text-gray-500 text-sm leading-relaxed font-light">
+                Direct consultation with certified animal health specialists.
               </p>
               <Link href="/qa" className="inline-flex items-center space-x-2 text-orange-600 font-bold hover:text-orange-700 pt-4">
-                <span>Ask Expert</span>
+                <span className="underline underline-offset-4">Ask Expert</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
           </div>
 
-          {/* Small Feature: Breeds */}
-          <div className="md:col-span-4 group relative overflow-hidden bg-white/60 backdrop-blur-md rounded-[48px] p-12 border border-white shadow-xl hover:shadow-2xl transition-all">
-            <div className="relative z-10 space-y-6">
-              <div className="w-14 h-14 bg-purple-500 text-white rounded-3xl flex items-center justify-center shadow-lg shadow-purple-200">
-                <Dog className="h-7 w-7" />
+          {/* Feature 5: Breeds */}
+          <div className="md:col-span-4 group relative overflow-hidden bg-white rounded-[50px] p-12 border border-gray-100 shadow-sm hover:shadow-2xl transition-all duration-500">
+            <div className="relative z-10 space-y-8">
+              <div className="w-16 h-16 bg-purple-50 text-purple-500 rounded-3xl flex items-center justify-center shadow-inner">
+                <Dog className="h-8 w-8" />
               </div>
               <h3 className="text-2xl font-black text-gray-900 tracking-tight">Breed Lab</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Explore a comprehensive encyclopedia of pet breeds and traits.
+              <p className="text-gray-500 text-sm leading-relaxed font-light">
+                Deep-dive into a comprehensive encyclopedia of pet genetics.
               </p>
               <Link href="/breeds" className="inline-flex items-center space-x-2 text-purple-600 font-bold hover:text-purple-700 pt-4">
-                <span>Browse Lab</span>
+                <span className="underline underline-offset-4">Browse Lab</span>
                 <ArrowRight className="h-5 w-5" />
               </Link>
             </div>
@@ -193,35 +186,34 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* The "Ultra-Premium" Trust Section */}
+      {/* High-Impact Trust Section */}
       <section className="bg-black py-32 text-white overflow-hidden relative">
         <div className="max-w-5xl mx-auto px-6 text-center space-y-16 relative z-10">
           <div className="flex justify-center">
-            <div className="p-6 bg-white/10 rounded-full backdrop-blur-2xl border border-white/20 shadow-2xl">
+            <div className="p-8 bg-white/10 rounded-full backdrop-blur-2xl border border-white/20 shadow-2xl">
               <ShieldCheck className="h-20 w-20 text-teal-400" />
             </div>
           </div>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tighter leading-tight">
-            Security. Integrity. <br />
-            <span className="text-gray-500">Uncompromising Care.</span>
+          <h2 className="text-5xl md:text-8xl font-black tracking-tighter leading-tight">
+            Safe. Secure. <br />
+            <span className="text-gray-500 italic font-serif">Uncompromising.</span>
           </h2>
           <p className="text-gray-400 max-w-2xl mx-auto text-xl font-light leading-relaxed">
-            We've built the most secure infrastructure for pet data, ensuring that every interaction is verified and every medical record is encrypted.
+            Integrating high-security verification with a passion for animals to create the safest networking environment in the pet world.
           </p>
         </div>
-        {/* Animated Background Glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-teal-500/20 blur-[150px] rounded-full pointer-events-none animate-pulse" />
       </section>
 
-      <footer className="bg-white py-12 border-t border-gray-100">
+      <footer className="bg-white py-16 border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center space-x-2">
-            <div className="bg-black text-white p-1 rounded-lg">
-              <Dog className="h-5 w-5" />
+          <div className="flex items-center space-x-3">
+            <div className="bg-black text-white p-1.5 rounded-lg">
+              <Dog className="h-6 w-6" />
             </div>
-            <span className="text-lg font-bold tracking-tighter">PetCommunity</span>
+            <span className="text-xl font-black tracking-tighter">PetCommunity</span>
           </div>
-          <div className="text-gray-400 text-xs font-medium">
+          <div className="text-gray-400 text-xs font-medium tracking-wide uppercase">
             © {new Date().getFullYear()} PetCommunity. A New Standard in Pet Care.
           </div>
         </div>
