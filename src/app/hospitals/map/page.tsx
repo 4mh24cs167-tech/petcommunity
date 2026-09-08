@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { createClient } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X } from 'lucide-react';
+import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X, Heart } from 'lucide-react';
 
 const containerStyle = {
   width: '100%',
