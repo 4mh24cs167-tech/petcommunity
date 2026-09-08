@@ -1,9 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { createClient } from '@/lib/supabase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X, Heart } from 'lucide-react';
+import { Search, MapPin, Navigation, Star, Phone, Mail, ZoomIn, ZoomOut, Layers, X } from 'lucide-react';
+
+const containerStyle = {
+  width: '100%',
+  height: '100%'
+};
 
 export default function HospitalMapView() {
   const [hospitals, setHospitals] = useState<any[]>([]);
@@ -11,6 +17,12 @@ export default function HospitalMapView() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const supabase = createClient();
+
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    // Note: The API Key should be added to .env.local as NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'YOUR_GOOGLE_MAPS_API_KEY'
+  });
 
   useEffect(() => {
     async function loadHospitals() {
@@ -21,13 +33,20 @@ export default function HospitalMapView() {
     loadHospitals();
   }, [supabase]);
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+  if (loading) return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600"></div>
+    </div>
+  );
+
+  if (!isLoaded) return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <div className="text-center space-y-4">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-600 mx-auto"></div>
+        <p className="text-gray-500 font-medium">Loading Google Maps...</p>
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col overflow-hidden bg-gray-50">
@@ -55,58 +74,46 @@ export default function HospitalMapView() {
             <Layers className="h-4 w-4 text-gray-600" />
           </button>
           <div className="flex bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-            <button className="p-2 hover:bg-gray-50 border-r border-gray-100 transition">
-              <ZoomIn className="h-4 w-4 text-gray-600" />
-            </button>
-            <button className="p-2 hover:bg-gray-50 transition">
-              <ZoomOut className="h-4 w-4 text-gray-600" />
-            </button>
+            <button className="p-2 hover:bg-gray-50 border-r border-gray-100 transition"><ZoomIn className="h-4 w-4 text-gray-600" /></button>
+            <button className="p-2 hover:bg-gray-50 transition"><ZoomOut className="h-4 w-4 text-gray-600" /></button>
           </div>
         </div>
       </div>
 
-      {/* Main Map Canvas */}
+      {/* Google Map Integration */}
       <div className="relative flex-grow bg-slate-200 overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-30"
-          style={{ backgroundImage: 'radial-gradient(#94a3b8 1px, transparent 1px)', backgroundSize: '40px 40px' }}
-        />
-
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-1/4 w-full h-1 bg-slate-400 rotate-1"></div>
-          <div className="absolute left-1/3 h-full w-1 bg-slate-400 -rotate-3"></div>
-          <div className="absolute top-2/3 w-full h-1 bg-slate-400 rotate-2"></div>
-          <div className="absolute right-1/4 h-full w-1 bg-slate-400 rotate-1"></div>
-        </div>
-
-        <AnimatePresence>
-          {hospitals.map((h, i) => (
-            <motion.button
+        <GoogleMap
+          mapContainerStyle={containerStyle}
+          center={{ lat: 40.7128, lng: -74.0060 }} // Default center (NYC), would be dynamic in prod
+          zoom={12}
+          options={{
+            disableDefaultUI: true,
+            zoomControl: false,
+            styles: [
+              {
+                "featureType": "all",
+                "elementType": "labels.text.fill",
+                "stylers": [{ "color": "#616161" }]
+              },
+              {
+                "featureType": "water",
+                "elementType": "geometry",
+                "stylers": [{ "color": "#e9e9e9" }]
+              }
+            ]
+          }}
+        >
+          {hospitals.map((h) => (
+            <Marker
               key={h.id}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              whileHover={{ scale: 1.2 }}
-              onClick={() => setSelectedHospital(h)}
-              className="absolute z-10 group"
-              style={{
-                left: `${20 + (i * 18) % 60}%`,
-                top: `${20 + (i * 22) % 60}%`,
+              position={{
+                lat: h.coordinates?.lat || 40.7 + Math.random()*0.1,
+                lng: h.coordinates?.lng || -74.0 + Math.random()*0.1
               }}
-            >
-              <div className="relative">
-                <div className="absolute -inset-2 bg-teal-500/20 rounded-full animate-ping"></div>
-                <div className="relative bg-teal-600 p-2 rounded-full shadow-lg text-white border-2 border-white group-hover:bg-teal-700 transition">
-                  <MapPin className="h-4 w-4" />
-                </div>
-                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                  <div className="bg-gray-900 text-white text-[10px] font-bold px-2 py-1 rounded whitespace-nowrap">
-                    {h.name}
-                  </div>
-                </div>
-              </div>
-            </motion.button>
+              onClick={() => setSelectedHospital(h)}
+            />
           ))}
-        </AnimatePresence>
+        </GoogleMap>
       </div>
 
       {/* Right Side Detail Panel */}
@@ -185,8 +192,8 @@ export default function HospitalMapView() {
               </div>
             </div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

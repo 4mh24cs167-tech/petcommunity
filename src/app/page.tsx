@@ -38,7 +38,7 @@ export default function HomePage() {
         <FloatingPet emoji="🐕" delay={0} x="10%" y="15%" />
         <FloatingPet emoji="🐈" delay={1} x="85%" y="10%" />
         <FloatingPet emoji="🦜" delay={2} x="15%" y="60%" />
-        <FloatingPet emoji="🐇" delay={3} x="80%" y, "70%" />
+        <FloatingPet emoji="🐇" delay={3} x="80%" y="70%" />
         <FloatingPet emoji="🐕‍🦺" delay={4} x="45%" y="30%" />
         <FloatingPet emoji="🐈‍⬛" delay={5} x="60%" y="80%" />
       </div>
