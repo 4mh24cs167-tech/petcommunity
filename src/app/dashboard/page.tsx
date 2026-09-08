@@ -25,7 +25,7 @@ export default function MatchingDashboardPage() {
         return;
       }
 
-      const petIds = myPets.map(p => p.id);
+      const petIds = myPets.map((p: any) => p.id);
 
       // Fetch requests sent by user's pets
       const { data: sent } = await supabase

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, MapPin, Camera, Plus, Heart, Activity, Trash2, Edit3, ChevronRight, ShieldCheck, Zap, Award } from 'lucide-react';
+import Link from 'next/link';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);

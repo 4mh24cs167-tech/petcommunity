@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Menu, X, Dog, Heart, Hospital, Users, MessageSquare, UserCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,43 +18,43 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: 'Find Matches', href: '/matches', icon: Heart },
+    { name: 'Matches', href: '/matches', icon: Heart },
     { name: 'Breeds', href: '/breeds', icon: Dog },
-    { name: 'Hospitals', href: '/hospitals', icon: Hospital },
+    { name: 'Health', href: '/hospitals', icon: Hospital },
     { name: 'Community', href: '/community', icon: Users },
-    { name: 'Vet Q&A', href: '/qa', icon: MessageSquare },
-    { name: 'My Profile', href: '/profile', icon: UserCircle },
+    { name: 'QA', href: '/qa', icon: MessageSquare },
+    { name: 'Profile', href: '/profile', icon: UserCircle },
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="flex justify-between h-16 items-center">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center space-x-2">
-              <Dog className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900 tracking-tight">
-                Pet<span className="text-blue-600">Community</span>
+            <Link href="/" className="flex items-center space-x-2 group">
+              <div className="bg-black text-white p-1 rounded-lg group-hover:scale-110 transition-transform">
+                <Dog className="h-5 w-5" />
+              </div>
+              <span className="text-lg font-bold tracking-tighter text-black">
+                Pet<span className="text-gray-400">Community</span>
               </span>
             </Link>
           </div>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center space-x-1 px-3 py-2 text-sm font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
+                className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
               >
-                <link.icon className="h-4 w-4" />
-                <span>{link.name}</span>
+                {link.name}
               </Link>
             ))}
-            <div className="h-6 w-px bg-gray-200 mx-2" />
             <button
               onClick={handleSignOut}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition shadow-sm"
+              className="px-4 py-1.5 text-sm font-bold bg-black text-white rounded-full hover:bg-gray-800 transition-all"
             >
               Sign Out
             </button>
@@ -63,7 +64,7 @@ export default function Navbar() {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-blue-50 focus:outline-none transition"
+              className="p-2 text-gray-600 hover:text-black transition"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -72,29 +73,38 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Nav */}
-      {isOpen && (
-        <div className="md:hidden bg-white border-b border-gray-100">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="flex items-center space-x-2 px-3 py-3 text-base font-medium text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                onClick={() => setIsOpen(false)}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-gray-100 overflow-hidden"
+          >
+            <div className="px-6 py-8 space-y-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="block py-3 text-lg font-medium text-gray-600 hover:text-black transition"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {link.name}
+                </Link>
+              ))}
+              <button
+                onClick={handleSignOut}
+                className="w-full py-3 text-lg font-bold text-red-600 text-left"
               >
-                <link.icon className="h-5 w-5" />
-                <span>{link.name}</span>
-              </Link>
-            ))}
-            <button
-              onClick={handleSignOut}
-              className="w-full text-left px-3 py-3 text-base font-medium text-red-600 hover:bg-red-50 rounded-lg transition"
-            >
-              Sign Out
-            </button>
-          </div>
-        </div>
-      )}
+                Sign Out
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }
+
+// Helper for AnimatePresence since it's used in the return
+import { AnimatePresence } from 'framer-motion';
