@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Heart, Activity, Award, Info, ChevronLeft } from 'lucide-react';
+import { Heart, Activity, Award, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function PetProfilePage() {
