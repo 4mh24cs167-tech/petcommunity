@@ -41,6 +41,11 @@ export default function ProfilePage() {
         setFullName(profile.full_name || '');
         setLocation(profile.location || '');
         setVerificationStatus(profile.verification_status || 'unverified');
+
+        if (profile.verification_status === 'unverified') {
+          router.push('/auth/verify');
+          return;
+        }
       }
 
       const { data: userPets } = await supabase
