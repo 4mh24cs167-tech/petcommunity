@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShieldCheck, ArrowLeft, Sparkles } from 'lucide-react';
+import { ShieldCheck, ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { PET_SPRINGS } from '@/lib/motion-variants';
 
 export default function VerifyOTPPage() {

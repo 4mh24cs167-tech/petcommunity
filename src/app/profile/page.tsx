@@ -60,7 +60,7 @@ export default function ProfilePage() {
 
   const handleFileUpload = async (e: React.FormEvent) => {
     e.preventDefault();
-    const fileInput = e.currentTarget.elements.namedItem('id_doc') as HTMLInputElement;
+    const fileInput = (e.currentTarget as HTMLFormElement).elements.namedItem('id_doc') as HTMLInputElement;
     const file = fileInput.files?.[0];
     if (!file) {
       alert('Please select a document first');

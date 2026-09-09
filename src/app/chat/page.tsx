@@ -36,8 +36,8 @@ export default function ChatPage() {
         console.error('Error loading conversations:', error);
       } else {
         // Group by conversation and get the other member
-        const grouped = {};
-        data?.forEach(member => {
+        const grouped: Record<string, any> = {};
+        data?.forEach((member: any) => {
           const convId = member.conversation_id;
           if (!grouped[convId]) grouped[convId] = { ...member.conversations, members: [] };
           if (member.profiles && member.profiles.id !== user.id) {

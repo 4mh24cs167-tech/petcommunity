@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, ChevronLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Calendar, Clock, ChevronLeft, CheckCircle2, AlertCircle, User } from 'lucide-react';
 import { PET_SPRINGS } from '@/lib/motion-variants';
 
 export default function BookAppointmentPage() {
