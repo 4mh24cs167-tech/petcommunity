@@ -52,15 +52,22 @@ export default function VerifyOTPPage() {
     setError('');
 
     try {
-      // In a real Supabase setup, you'd use verifyOtp
-      // For the demo/UI focus, we'll simulate a successful verification
-      // if the environment variables are missing.
-      const { data, error: authError } = await supabase.auth.verifyOtp({
-        token: otpString,
-        type: 'signup',
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setError('You must be signed up first.');
+        return;
+      }
+
+      const response = await fetch('/api/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, otpCode: otpString }),
       });
 
-      if (authError) throw authError;
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Invalid verification code');
+      }
 
       router.push('/profile');
     } catch (err: any) {

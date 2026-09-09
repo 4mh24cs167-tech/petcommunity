@@ -14,16 +14,28 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
     });
 
     if (error) {
       alert(error.message);
-    } else {
-      alert('Verification code sent to your email!');
-      router.push('/auth/verify');
+    } else if (data?.user) {
+      try {
+        const response = await fetch('/api/send-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, userId: data.user.id }),
+        });
+
+        if (!response.ok) throw new Error('Failed to send verification email');
+
+        alert('Verification code sent to your email!');
+        router.push('/auth/verify');
+      } catch (apiError: any) {
+        alert(apiError.message);
+      }
     }
     setLoading(false);
   };
