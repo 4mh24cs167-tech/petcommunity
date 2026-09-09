@@ -45,7 +45,7 @@ export default function ProfilePage() {
 
       const { data: userPets } = await supabase
         .from('pets')
-        .select(`*, breeds(name)`)
+        .select('*, breeds(name)')
         .eq('owner_id', user.id);
 
       if (userPets) setPets(userPets);
@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
     setUploading(true);
     try {
-      const filePath = `verifications/${user.id}/${Date.now()}_${file.name}`;
+      const filePath = `verifications/\${user.id}/\${Date.now()}_\${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('verifications')
         .upload(filePath, file);
@@ -140,7 +140,7 @@ export default function ProfilePage() {
                 router.push('/login');
               } catch (error: any) {
                 console.error('Sign out error:', error);
-                alert(`Sign out failed: ${error.message}`);
+                alert(`Sign out failed: \${error.message}`);
               }
             }}
             className="px-6 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition"
@@ -176,16 +176,16 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
                 <div className="p-4 bg-gray-50 rounded-2xl flex items-center space-x-3">
                   <MapPin className="h-5 w-5 text-teal-500" />
-                  <span className="text-sm text-gray-600 font-medium truncate">{location || 'No location set'}</span>
+                  <span className="text-sm text-gray-600 font-medium truncate">{location || 'No location set'}</span >
                 </div>
                 <div className="p-4 bg-gray-50 rounded-2xl flex items-center space-x-3">
                   <Heart className="h-5 w-5 text-red-500" />
-                  <span className="text-sm text-gray-600 font-medium">{pets.length} Pets Registered</span>
+                  <span className="text-sm text-gray-600 font-medium">{pets.length} Pets Registered</span >
                 </div>
                 <div className="p-4 bg-gray-50 rounded-2xl flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <ShieldCheck className={`h-5 w-5 ${verificationStatus === 'verified' ? 'text-green-500' : verificationStatus === 'pending' ? 'text-amber-500' : 'text-blue-500'}`} />
-                    <span className="text-sm text-gray-600 font-medium capitalize">{verificationStatus} Owner</span>
+                    <ShieldCheck className={`h-5 w-5 \${verificationStatus === 'verified' ? 'text-green-500' : verificationStatus === 'pending' ? 'text-amber-500' : 'text-blue-500'}`} />
+                    <span className="text-sm text-gray-600 font-medium capitalize">{verificationStatus} Owner</span >
                   </div>
                   {verificationStatus === 'unverified' && (
                     <motion.button
@@ -207,7 +207,7 @@ export default function ProfilePage() {
           <PetAnimation pattern="nudge" className="md:col-span-4 bg-white p-8 rounded-3xl border border-gray-100 shadow-sm space-y-6">
             <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-2">
               <Edit3 className="h-5 w-5 text-teal-500" />
-              <span>Quick Edit</span>
+              <span >Quick Edit</span >
             </h3>
             <form onSubmit={updateProfile} className="space-y-4">
               <div className="space-y-1">
@@ -259,7 +259,7 @@ export default function ProfilePage() {
                 className="flex items-center space-x-2 px-5 py-2 bg-teal-600 text-white rounded-xl text-sm font-bold hover:bg-teal-700 transition shadow-lg shadow-teal-100"
               >
                 <Plus className="h-4 w-4" />
-                <span>Add New Pet</span>
+                <span >Add New Pet</span >
               </motion.button>
             </div>
 
@@ -273,7 +273,7 @@ export default function ProfilePage() {
                   >
                     <div className="text-5xl">🐾</div>
                     <p className="text-gray-500 font-medium">Your pet family is empty. Start by adding your first companion!</p>
-                  </motion.div>
+                  </motion.div >
                 ) : (
                   pets.map((pet, idx) => (
                     <PetAnimation
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                           <div className="w-16 h-16 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 font-black text-2xl">
                             {pet.name.charAt(0).toUpperCase()}
                           </div>
-                          <div>
+                          <div >
                             <h3 className="font-bold text-xl text-gray-900">{pet.name}</h3>
                             <p className="text-sm text-gray-500">{pet.breeds?.name || 'Unknown Breed'}</p>
                           </div>
@@ -299,28 +299,28 @@ export default function ProfilePage() {
 
                       <div className="grid grid-cols-2 gap-4 py-4 border-y border-gray-50">
                         <div className="flex items-center space-x-2 text-xs text-gray-600">
-                          <span className="text-gray-400 uppercase font-bold">Age</span>
-                          <span className="font-bold text-gray-800">{pet.age}y</span>
+                          <span className="text-gray-400 uppercase font-bold">Age</span >
+                          <span className="font-bold text-gray-800">{pet.age}y</span >
                         </div>
                         <div className="flex items-center space-x-2 text-xs text-gray-600">
-                          <span className="text-gray-400 uppercase font-bold">Gender</span>
-                          <span className="font-bold text-gray-800">{pet.gender}</span>
+                          <span className="text-gray-400 uppercase font-bold">Gender</span >
+                          <span className="font-bold text-gray-800">{pet.gender}</span >
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between">
                         <button
-                          onClick={() => router.push(`/profile/pet/${pet.id}/health`)}
+                          onClick={() => router.push(`/profile/pet/\${pet.id}/health`)}
                           className="flex items-center space-x-1 text-xs font-bold text-teal-600 hover:text-teal-700 transition group"
                         >
                           <Activity className="h-3 w-3" />
-                          <span className="group-hover:underline">Health Hub</span>
+                          <span className="group-hover:underline">Health Hub</span >
                         </button>
                         <Link
-                          href={`/profile/pet/${pet.id}`}
+                          href={`/profile/pet/\${pet.id}`}
                           className="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center space-x-1 transition"
                         >
-                          <span>Details</span>
+                          <span >Details</span >
                           <ChevronRight className="h-3 w-3" />
                         </Link>
                       </div>
@@ -332,7 +332,6 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
-    </div>
 
     <AnimatePresence>
       {showUpload && (
@@ -380,13 +379,13 @@ export default function ProfilePage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 disabled={uploading}
-                className={`w-full py-4 rounded-2xl font-bold text-white transition shadow-lg ${uploading ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'}`}
+                className={`w-full py-4 rounded-2xl font-bold text-white transition shadow-lg \${uploading ? 'bg-gray-400' : 'bg-teal-600 hover:bg-teal-700'}`}
               >
                 {uploading ? 'Uploading...' : 'Submit for Verification'}
               </motion.button>
             </form>
-          </motion.div>
-        </motion.div>
+          </motion.div >
+        </motion.div >
       )}
     </AnimatePresence>
     </>
