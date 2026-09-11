@@ -43,7 +43,7 @@ export async function POST(req: Request) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        sender: { name: 'Pet Community', email: 'no-reply@petcommunity.app' }, // Ensure this domain is verified in Brevo
+        sender: { name: 'Pet Community', email: process.env.BREVO_SENDER_EMAIL || 'vvarshith154@gmail.com' }, // Ensure this domain is verified in Brevo
         to: [{ email: email }],
         subject: 'Your Verification Code',
         htmlContent: `
