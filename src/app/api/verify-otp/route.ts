@@ -36,7 +36,17 @@ export async function POST(req: Request) {
 
     if (updateError) {
       console.error('Error marking OTP as used:', updateError);
-      // We still return success because the code was correct
+    }
+
+    // 3. Update user profile to verified status
+    const { error: profileError } = await supabaseAdmin
+      .from('profiles')
+      .update({ verification_status: 'verified' })
+      .eq('id', userId);
+
+    if (profileError) {
+      console.error('Error updating profile status:', profileError);
+      return NextResponse.json({ error: 'Failed to update verification status' }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: 'OTP verified successfully' });

@@ -1,0 +1,147 @@
+﻿datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Profile {
+  id                  String             @id @db.Uuid
+  username            String?            @unique
+  fullName            String?            @map("full_name")
+  avatarUrl           String?            @map("avatar_url")
+  location            String?
+  verificationStatus  String?            @default("unverified") @map("verification_status")
+  idDocumentUrl       String?            @map("id_document_url")
+  verifiedAt          DateTime?          @map("verified_at") @db.Timestamptz
+  createdAt           DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  
+  pets                Pet[]
+  posts               CommunityPost[]
+  subscriptions       Subscription[]
+  questionsAsked      Question[]         @relation("QuestionUser")
+  questionsAnswered   Question[]         @relation("QuestionAnsweredBy")
+  
+  @@map("profiles")
+}
+
+model Breed {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String   @unique
+  species         String
+  description     String?
+  characteristics Json?
+  pets            Pet[]
+
+  @@map("breeds")
+}
+
+model Pet {
+  id                   String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId              String          @map("owner_id") @db.Uuid
+  breedId              String?         @map("breed_id") @db.Uuid
+  name                 String
+  age                  Int?
+  gender               String?
+  healthRecords        Json?           @map("health_records")
+  photos               String[]
+  isAvailableForCross  Boolean?        @default(false) @map("is_available_for_cross")
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz
+
+  owner                Profile         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  breed                Breed?          @relation(fields: [breedId], references: [id], onDelete: SetNull)
+  crossRequestsSent    CrossRequest[]  @relation("CrossRequester")
+  crossRequestsReceived CrossRequest[] @relation("CrossTarget")
+  posts                CommunityPost[]
+
+  @@map("pets")
+}
+
+model Hospital {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                String
+  address             String
+  coordinates         String?   // POINT not natively supported by prisma easily without PostGIS, using String or Unsupported("point")
+  specialties         String[]
+  rating              Float?
+  contactInfo         Json?     @map("contact_info")
+  verificationStatus  String?   @default("unverified") @map("verification_status")
+  licenseDocumentUrl  String?   @map("license_document_url")
+  verifiedAt          DateTime? @map("verified_at") @db.Timestamptz
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("hospitals")
+}
+
+model CrossRequest {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  requesterPetId   String   @map("requester_pet_id") @db.Uuid
+  targetPetId      String   @map("target_pet_id") @db.Uuid
+  status           String?  @default("pending")
+  message          String?
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  requesterPet     Pet      @relation("CrossRequester", fields: [requesterPetId], references: [id], onDelete: Cascade)
+  targetPet        Pet      @relation("CrossTarget", fields: [targetPetId], references: [id], onDelete: Cascade)
+
+  @@map("cross_requests")
+}
+
+model CommunityPost {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  petId     String?  @map("pet_id") @db.Uuid
+  content   String
+  imageUrl  String?  @map("image_url")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pet       Pet?     @relation(fields: [petId], references: [id], onDelete: SetNull)
+
+  @@map("community_posts")
+}
+
+model Subscription {
+  id                   String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId               String    @map("user_id") @db.Uuid
+  planType             String?   @default("premium") @map("plan_type")
+  status               String?   @default("active")
+  startDate            DateTime? @default(now()) @map("start_date") @db.Timestamptz
+  endDate              DateTime? @map("end_date") @db.Timestamptz
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  createdAt            DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  user                 Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Question {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String    @map("user_id") @db.Uuid
+  title        String
+  content      String
+  answer       String?
+  isAnswered   Boolean?  @default(false) @map("is_answered")
+  answeredBy   String?   @map("answered_by") @db.Uuid
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  user         Profile   @relation("QuestionUser", fields: [userId], references: [id], onDelete: Cascade)
+  answerer     Profile?  @relation("QuestionAnsweredBy", fields: [answeredBy], references: [id])
+
+  @@map("questions")
+}
+
+model VerificationLog {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityId   String    @map("entity_id") @db.Uuid
+  entityType String    @map("entity_type")
+  action     String
+  adminId    String?   @map("admin_id") @db.Uuid
+  notes      String?
+  createdAt  DateTime? @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("verification_logs")
+}

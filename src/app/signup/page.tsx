@@ -31,7 +31,7 @@ export default function SignupPage() {
 
         if (!response.ok) throw new Error('Failed to send verification email');
 
-        alert('Verification code sent to your email!');
+        alert('Verification code sent! (Check your terminal console if the email fails)');
         router.push('/auth/verify');
       } catch (apiError: any) {
         alert(apiError.message);

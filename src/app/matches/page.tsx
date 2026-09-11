@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Heart, Sparkles, Info, Dog, User, MessageCircle } from 'lucide-react';
 
@@ -9,18 +10,29 @@ export default function FindMatchesPage() {
   const [pets, setPets] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Advanced V2 Filters
+  const [filterIntactOnly, setFilterIntactOnly] = useState(true);
+  const [maxStudFee, setMaxStudFee] = useState(1000);
+  
+  const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     async function loadMatches() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        router.push('/login');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('pets')
         .select(`
           *,
-          breeds (name, species, characteristics)
+          breeds(name, species, characteristics),
+          profiles:owner_id(username, location, verification_status)
         `)
         .eq('is_available_for_cross', true)
         .neq('owner_id', user.id);
@@ -33,7 +45,7 @@ export default function FindMatchesPage() {
       setLoading(false);
     }
     loadMatches();
-  }, [supabase]);
+  }, [supabase, router]);
 
   const sendRequest = async (targetPetId: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -68,11 +80,17 @@ export default function FindMatchesPage() {
     return Math.floor(Math.random() * 30) + 70;
   };
 
-  const filteredPets = pets.filter(pet =>
-    pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    pet.breeds?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    pet.breeds?.species.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPets = pets.filter(pet => {
+    const matchesSearch = pet.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          pet.breeds?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          pet.breeds?.species.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Advanced logic
+    const matchesIntact = !filterIntactOnly || pet.spay_neuter_status === false;
+    const matchesFee = (pet.stud_fee || 0) <= maxStudFee;
+
+    return matchesSearch && matchesIntact && matchesFee;
+  });
 
   if (loading) return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -104,21 +122,75 @@ export default function FindMatchesPage() {
         </p>
       </header>
 
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-        <div className="relative w-full max-w-md">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search by breed or trait..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-3xl outline-none focus:ring-2 focus:ring-teal-500 shadow-sm transition text-lg"
-          />
+      <div className="flex flex-col gap-4 mb-12">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search by breed or trait..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-3xl outline-none focus:ring-2 focus:ring-teal-500 shadow-sm transition text-lg"
+            />
+          </div>
+          <button 
+            onClick={() => setShowFilters(!showFilters)}
+            className={`flex items-center space-x-2 px-6 py-4 border rounded-3xl transition shadow-sm font-bold ${
+              showFilters ? 'bg-teal-600 text-white border-teal-600' : 'bg-white border-gray-100 text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Filter className="h-5 w-5" />
+            <span>Advanced Filters</span>
+          </button>
         </div>
-        <button className="flex items-center space-x-2 px-6 py-4 bg-white border border-gray-100 rounded-3xl text-gray-600 hover:bg-gray-50 transition shadow-sm font-bold">
-          <Filter className="h-5 w-5" />
-          <span>Filter Matches</span>
-        </button>
+
+        {/* V2 Advanced Filters Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-white rounded-[32px] p-8 border border-gray-100 shadow-sm overflow-hidden"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <h4 className="font-bold text-gray-900">Breeding Settings</h4>
+                  <label className="flex items-center space-x-3 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={filterIntactOnly}
+                      onChange={(e) => setFilterIntactOnly(e.target.checked)}
+                      className="w-5 h-5 text-teal-600 rounded border-gray-300 focus:ring-teal-500" 
+                    />
+                    <span className="text-gray-700">Must be Intact (Not Spayed/Neutered)</span>
+                  </label>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h4 className="font-bold text-gray-900">Max Stud Fee</h4>
+                    <span className="text-teal-600 font-black">${maxStudFee}</span>
+                  </div>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="5000" 
+                    step="100"
+                    value={maxStudFee}
+                    onChange={(e) => setMaxStudFee(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-teal-600" 
+                  />
+                  <div className="flex justify-between text-xs text-gray-400 font-bold">
+                    <span>$0</span>
+                    <span>$5,000+</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       <motion.div

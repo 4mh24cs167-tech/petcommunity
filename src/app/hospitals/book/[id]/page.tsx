@@ -19,6 +19,7 @@ export default function BookAppointmentPage() {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
   const [reason, setReason] = useState('');
+  const [isTelehealth, setIsTelehealth] = useState(false);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'booking' | 'success' | 'error'>('idle');
 
   useEffect(() => {
@@ -59,12 +60,17 @@ export default function BookAppointmentPage() {
     setBookingStatus('booking');
     const { data: { user } } = await supabase.auth.getUser();
 
+    // Mock meeting link generation for telehealth
+    const meeting_link = isTelehealth ? `https://meet.petcommunity.app/${Math.random().toString(36).substring(7)}` : null;
+
     const { error } = await supabase.from('appointments').insert({
       hospital_id: id,
       user_id: user?.id,
       pet_id: selectedPet,
       appointment_date: new Date(`${date}T${time}`).toISOString(),
       reason,
+      is_telehealth: isTelehealth,
+      meeting_link,
       status: 'pending'
     });
 
@@ -94,7 +100,11 @@ export default function BookAppointmentPage() {
         </div>
         <div className="space-y-2">
           <h2 className="text-3xl font-black text-gray-900">Booking Confirmed!</h2>
-          <p className="text-gray-500">Your appointment at {hospital?.name} has been requested. The clinic will contact you shortly.</p>
+          <p className="text-gray-500">
+            {isTelehealth 
+              ? `Your Telehealth appointment is booked! You will receive a video link shortly.`
+              : `Your appointment at ${hospital?.name} has been requested. The clinic will contact you shortly.`}
+          </p>
         </div>
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -125,6 +135,27 @@ export default function BookAppointmentPage() {
           </div>
 
           <form onSubmit={handleBookAppointment} className="p-8 space-y-8">
+            {/* Appointment Type Toggle */}
+            <div className="bg-gray-50 p-2 rounded-2xl flex relative">
+              <div 
+                className="absolute inset-y-2 left-2 w-[calc(50%-12px)] bg-white rounded-xl shadow-sm transition-transform duration-300 ease-out"
+                style={{ transform: isTelehealth ? 'translateX(100%)' : 'translateX(0)' }}
+              />
+              <button
+                type="button"
+                onClick={() => setIsTelehealth(false)}
+                className={`relative z-10 w-1/2 py-3 text-sm font-bold rounded-xl transition-colors ${!isTelehealth ? 'text-teal-700' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                In-Person Visit
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsTelehealth(true)}
+                className={`relative z-10 w-1/2 py-3 text-sm font-bold rounded-xl transition-colors ${isTelehealth ? 'text-teal-700' : 'text-gray-500 hover:text-gray-700'}`}
+              >
+                Telehealth (Video)
+              </button>
+            </div>
             <div className="space-y-4">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center space-x-2">
                 <User className="h-3 w-3" />

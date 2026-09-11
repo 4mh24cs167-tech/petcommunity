@@ -1,0 +1,265 @@
+model Profile {
+  id                  Uuid @id
+  username            String?            @unique
+  fullName            String?            @map("full_name")
+  avatarUrl           String?            @map("avatar_url")
+  location            String?
+  verificationStatus  String?            @default("unverified") @map("verification_status")
+  idDocumentUrl       String?            @map("id_document_url")
+  verifiedAt          Timestamptz? @map("verified_at")
+  petPoints           Int             @default(0) @map("pet_points")
+  badges              String[]
+  createdAt           Timestamptz @default(now()) @map("created_at")
+  
+  pets                Pet[]
+  posts               CommunityPost[]
+  subscriptions       Subscription[]
+  questionsAsked      Question[]         @relation("QuestionUser")
+  questionsAnswered   Question[]         @relation("QuestionAnsweredBy")
+  
+  @@map("profiles")
+}
+
+model Breed {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  name            String   @unique
+  species         String
+  description     String?
+  characteristics Json?
+  pets            Pet[]
+
+  @@map("breeds")
+}
+
+model Pet {
+  id                   Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  ownerId              Uuid @map("owner_id")
+  breedId              Uuid? @map("breed_id")
+  name                 String
+  age                  Int?
+  gender               String?
+  healthRecords        Json?           @map("health_records")
+  photos               String[]
+  isAvailableForCross  Boolean?        @default(false) @map("is_available_for_cross")
+  weight               Float?
+  spayNeuterStatus     Boolean?        @map("spay_neuter_status")
+  temperamentTags      String[]        @map("temperament_tags")
+  studFee              Float?          @map("stud_fee")
+  pedigreeUrl          String?         @map("pedigree_url")
+  geneticScreening     Json?           @map("genetic_screening")
+  createdAt            Timestamptz @default(now()) @map("created_at")
+
+  owner                Profile         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  breed                Breed?          @relation(fields: [breedId], references: [id], onDelete: SetNull)
+  crossRequestsSent    CrossRequest[]  @relation("CrossRequester")
+  crossRequestsReceived CrossRequest[] @relation("CrossTarget")
+  posts                CommunityPost[]
+
+  @@map("pets")
+}
+
+model Hospital {
+  id                  Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  name                String
+  address             String
+  coordinates         String?   // POINT not natively supported by prisma easily without PostGIS, using String or Unsupported("point")
+  specialties         String[]
+  rating              Float?
+  contactInfo         Json?     @map("contact_info")
+  verificationStatus  String?   @default("unverified") @map("verification_status")
+  licenseDocumentUrl  String?   @map("license_document_url")
+  verifiedAt          Timestamptz? @map("verified_at")
+  petPoints           Int             @default(0) @map("pet_points")
+  badges              String[]
+  createdAt           Timestamptz @default(now()) @map("created_at")
+
+  @@map("hospitals")
+}
+
+model CrossRequest {
+  id               Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  requesterPetId   Uuid @map("requester_pet_id")
+  targetPetId      Uuid @map("target_pet_id")
+  status           String?  @default("pending")
+  message          String?
+  createdAt        Timestamptz @default(now()) @map("created_at")
+
+  requesterPet     Pet      @relation("CrossRequester", fields: [requesterPetId], references: [id], onDelete: Cascade)
+  targetPet        Pet      @relation("CrossTarget", fields: [targetPetId], references: [id], onDelete: Cascade)
+
+  @@map("cross_requests")
+}
+
+model CommunityPost {
+  id        Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  userId    Uuid @map("user_id")
+  petId     Uuid? @map("pet_id")
+  content   String
+  imageUrl  String?  @map("image_url")
+  createdAt Timestamptz @default(now()) @map("created_at")
+
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pet       Pet?     @relation(fields: [petId], references: [id], onDelete: SetNull)
+
+  @@map("community_posts")
+}
+
+model Subscription {
+  id                   Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  userId               Uuid @map("user_id")
+  planType             String?   @default("premium") @map("plan_type")
+  status               String?   @default("active")
+  startDate            Timestamptz? @default(now()) @map("start_date")
+  endDate              Timestamptz? @map("end_date")
+  stripeSubscriptionId String?   @map("stripe_subscription_id")
+  createdAt            Timestamptz? @default(now()) @map("created_at")
+
+  user                 Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+model Question {
+  id           Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  userId       Uuid @map("user_id")
+  title        String
+  content      String
+  answer       String?
+  isAnswered   Boolean?  @default(false) @map("is_answered")
+  answeredBy   Uuid? @map("answered_by")
+  createdAt    Timestamptz @default(now()) @map("created_at")
+
+  user         Profile   @relation("QuestionUser", fields: [userId], references: [id], onDelete: Cascade)
+  answerer     Profile?  @relation("QuestionAnsweredBy", fields: [answeredBy], references: [id])
+
+  @@map("questions")
+}
+
+model VerificationLog {
+  id         Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  entityId   Uuid @map("entity_id")
+  entityType String    @map("entity_type")
+  action     String
+  adminId    Uuid? @map("admin_id")
+  notes      String?
+  createdAt  Timestamptz? @default(now()) @map("created_at")
+
+  @@map("verification_logs")
+}
+
+
+model Appointment {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  userId          Uuid @map("user_id")
+  hospitalId      Uuid @map("hospital_id")
+  petId           Uuid? @map("pet_id")
+  appointmentDate Timestamptz @map("appointment_date")
+  status          String?  @default("pending")
+  reason          String
+  notes           String?
+  isTelehealth    Boolean? @default(false) @map("is_telehealth")
+  meetingLink     String?  @map("meeting_link")
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  user            Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hospital        Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  pet             Pet?     @relation(fields: [petId], references: [id], onDelete: SetNull)
+
+  @@map("appointments")
+}
+
+model Conversation {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  isGroup         Boolean? @default(false) @map("is_group")
+  name            String?
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  members         ConversationMember[]
+  messages        Message[]
+
+  @@map("conversations")
+}
+
+model ConversationMember {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  conversationId  Uuid @map("conversation_id")
+  userId          Uuid @map("user_id")
+  joinedAt        Timestamptz @default(now()) @map("joined_at")
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user            Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("conversation_members")
+}
+
+model Message {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  conversationId  Uuid @map("conversation_id")
+  senderId        Uuid @map("sender_id")
+  content         String
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender          Profile      @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
+model HealthRecord {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  petId           Uuid @map("pet_id")
+  recordType      String   @map("record_type")
+  title           String
+  description     String?
+  date            Timestamptz
+  documentUrl     String?  @map("document_url")
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  pet             Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+
+  @@map("health_records")
+}
+
+model MarketplaceItem {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  sellerId        Uuid @map("seller_id")
+  itemName        String   @map("item_name")
+  description     String
+  price           Float
+  category        String
+  status          String?  @default("available")
+  imageUrl        String?  @map("image_url")
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  seller          Profile  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@map("marketplace_items")
+}
+
+model Notification {
+  id              Uuid @id @default(dbgenerated("gen_random_uuid()"))
+  userId          Uuid @map("user_id")
+  title           String
+  content         String
+  type            String
+  isRead          Boolean? @default(false) @map("is_read")
+  actionUrl       String?  @map("action_url")
+  createdAt       Timestamptz @default(now()) @map("created_at")
+
+  user            Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model UserOtp {
+  id        Uuid     @id @default(dbgenerated("gen_random_uuid()"))
+  userId    Uuid     @map("user_id")
+  otpCode   String   @map("otp_code")
+  expiresAt Timestamptz @map("expires_at")
+  createdAt Timestamptz @default(now()) @map("created_at")
+  isUsed    Boolean  @default(false) @map("is_used")
+
+  user      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_otps")
+}

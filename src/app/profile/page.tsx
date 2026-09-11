@@ -8,6 +8,7 @@ import { User, MapPin, Camera, Plus, Heart, Activity, Trash2, Edit3, ChevronRigh
 import Link from 'next/link';
 import PetAnimation from '@/components/PetAnimation';
 import { PET_SPRINGS } from '@/lib/motion-variants';
+import { checkGamification } from '@/app/actions/gamification';
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,8 @@ export default function ProfilePage() {
   const [location, setLocation] = useState('');
   const [verificationStatus, setVerificationStatus] = useState('unverified');
   const [pets, setPets] = useState<any[]>([]);
+  const [petPoints, setPetPoints] = useState(0);
+  const [badges, setBadges] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [showUpload, setShowUpload] = useState(false);
 
@@ -41,6 +44,8 @@ export default function ProfilePage() {
         setFullName(profile.full_name || '');
         setLocation(profile.location || '');
         setVerificationStatus(profile.verification_status || 'unverified');
+        setPetPoints(profile.pet_points || 0);
+        setBadges(profile.badges || []);
 
         if (profile.verification_status === 'unverified') {
           router.push('/auth/verify');
@@ -54,6 +59,19 @@ export default function ProfilePage() {
         .eq('owner_id', user.id);
 
       if (userPets) setPets(userPets);
+
+      // Check Gamification in background
+      try {
+        const result = await checkGamification(user.id);
+        if (result.success && (result.newPoints > 0 || result.newBadges.length > 0)) {
+          setPetPoints(prev => prev + result.newPoints);
+          setBadges(prev => [...prev, ...result.newBadges]);
+          if (result.newPoints > 0) alert(`You earned ${result.newPoints} Pet Points!`);
+        }
+      } catch (err) {
+        console.error('Failed to run gamification checks:', err);
+      }
+
       setLoading(false);
     }
     loadProfile();
@@ -133,26 +151,53 @@ export default function ProfilePage() {
     <>
       <div className="max-w-7xl mx-auto p-6 space-y-10 py-12">
         {/* Header Section */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-black text-gray-900 tracking-tight">My <span className="text-teal-600">Profile</span></h1>
-          <motion.button
-            whileTap={{ scale: 0.92 }}
-            transition={PET_SPRINGS.pounce}
-            onClick={async () => {
-              try {
-                const { error } = await supabase.auth.signOut();
-                if (error) throw error;
-                router.push('/login');
-              } catch (error: any) {
-                console.error('Sign out error:', error);
-                alert(`Sign out failed: \${error.message}`);
-              }
-            }}
-            className="px-6 py-2 text-sm font-bold text-red-600 bg-red-50 rounded-xl hover:bg-red-100 transition"
-          >
-            Sign Out
-          </motion.button>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+          <div>
+            <h1 className="text-4xl font-black text-gray-900 tracking-tight">My <span className="text-teal-600">Profile</span></h1>
+            <p className="text-gray-500 font-medium mt-1">Manage your pet family and details</p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="bg-amber-100 px-5 py-3 rounded-2xl flex items-center space-x-3 shadow-sm border border-amber-200">
+              <div className="bg-amber-400 p-2 rounded-full text-white">
+                <Award className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs text-amber-700 font-bold uppercase tracking-wider">Pet Points</p>
+                <p className="text-xl font-black text-amber-900 leading-none">{petPoints}</p>
+              </div>
+            </div>
+
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              transition={PET_SPRINGS.pounce}
+              onClick={async () => {
+                try {
+                  const { error } = await supabase.auth.signOut();
+                  if (error) throw error;
+                  router.push('/login');
+                } catch (error: any) {
+                  console.error('Sign out error:', error);
+                }
+              }}
+              className="px-6 py-3 bg-white border-2 border-gray-100 text-gray-700 rounded-2xl font-bold hover:bg-gray-50 hover:border-gray-200 transition-all shadow-sm"
+            >
+              Sign Out
+            </motion.button>
+          </div>
         </div>
+
+        {/* Badges Section */}
+        {badges.length > 0 && (
+          <div className="bg-white p-6 rounded-3xl border border-gray-100 shadow-sm flex items-center gap-4 flex-wrap">
+            <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mr-2">Earned Badges:</h3>
+            {badges.map(badge => (
+              <span key={badge} className="px-4 py-2 bg-gradient-to-r from-teal-500 to-emerald-500 text-white text-xs font-bold rounded-full shadow-md">
+                🏆 {badge}
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
