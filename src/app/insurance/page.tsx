@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { motion } from 'framer-motion';
 import { ShieldCheck, HeartPulse, Check, ArrowRight, Shield } from 'lucide-react';
@@ -72,7 +72,7 @@ export default function InsuranceMarketplacePage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.1 }}
-              className={g-white rounded-[40px] p-8 border \ relative overflow-hidden flex flex-col}
+              className={`bg-white rounded-[40px] p-8 border ${plan.popular ? 'border-teal-500 shadow-2xl shadow-teal-100 scale-105 z-10' : 'border-gray-100 shadow-lg'} relative overflow-hidden flex flex-col`}
             >
               {plan.popular && (
                 <div className="absolute top-0 inset-x-0 bg-teal-500 text-white text-[10px] font-black uppercase tracking-widest py-1.5 text-center">
@@ -80,13 +80,13 @@ export default function InsuranceMarketplacePage() {
                 </div>
               )}
               
-              <div className={space-y-4 \}>
+              <div className={`space-y-4 ${plan.popular ? 'mt-4' : ''}`}>
                 <div className="flex justify-between items-start">
                   <div>
                     <p className="text-sm font-bold text-gray-400">{plan.provider}</p>
                     <h3 className="text-3xl font-black text-gray-900 tracking-tight">{plan.name}</h3>
                   </div>
-                  <div className={p-3 rounded-2xl \}>
+                  <div className={`p-3 rounded-2xl ${plan.popular ? 'bg-teal-50 text-teal-600' : 'bg-gray-50 text-gray-400'}`}>
                     <Shield className="h-6 w-6" />
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export default function InsuranceMarketplacePage() {
                 </div>
               </div>
 
-              <button className={w-full py-4 rounded-2xl font-black shadow-xl transition-all mt-6 \}>
+              <button className={`w-full py-4 rounded-2xl font-black shadow-xl transition-all mt-6 ${plan.popular ? 'bg-teal-600 text-white hover:bg-teal-700' : 'bg-gray-900 text-white hover:bg-black'}`}>
                 Get Free Quote
               </button>
             </motion.div>

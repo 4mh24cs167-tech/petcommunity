@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase';
@@ -196,7 +196,7 @@ export default function BreedsPage() {
                         <button
                           key={level}
                           onClick={() => setQuizAnswers({...quizAnswers, energy: level})}
-                          className={py-3 rounded-2xl font-bold text-sm transition border-2 \}
+                          className={`py-3 rounded-2xl font-bold text-sm transition border-2 ${quizAnswers.energy === level ? 'border-teal-600 bg-teal-50 text-teal-700' : 'border-gray-100 text-gray-500 hover:border-teal-200'}`}
                         >
                           {level.charAt(0).toUpperCase() + level.slice(1)}
                         </button>
@@ -211,7 +211,7 @@ export default function BreedsPage() {
                         <button
                           key={size}
                           onClick={() => setQuizAnswers({...quizAnswers, size: size})}
-                          className={py-3 rounded-2xl font-bold text-sm transition border-2 \}
+                          className={`py-3 rounded-2xl font-bold text-sm transition border-2 ${quizAnswers.size === size ? 'border-teal-600 bg-teal-50 text-teal-700' : 'border-gray-100 text-gray-500 hover:border-teal-200'}`}
                         >
                           {size.charAt(0).toUpperCase() + size.slice(1)}
                         </button>
