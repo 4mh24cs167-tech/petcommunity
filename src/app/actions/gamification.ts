@@ -1,6 +1,6 @@
-﻿'use server'
+'use server'
 
-import { db } from '@/prisma/db';
+import { createClient } from '@supabase/supabase-js';
 import { revalidatePath } from 'next/cache';
 
 export const BADGES = {
@@ -10,39 +10,56 @@ export const BADGES = {
 };
 
 export async function checkGamification(userId: string) {
-  const profile = await db.profile.findUnique({
-    where: { id: userId },
-    include: { pets: true }
-  });
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
 
-  if (!profile) return { success: false };
+  // Fetch profile
+  const { data: profile } = await supabaseAdmin
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (!profile) return { success: false, newPoints: 0, newBadges: [] };
+
+  // Fetch pets
+  const { data: petRows } = await supabaseAdmin
+    .from('pets')
+    .select('id')
+    .eq('owner_id', userId);
 
   let pointsEarned = 0;
   const newBadges: string[] = [];
-  const currentBadges = profile.badges || [];
+  const currentBadges: string[] = profile.badges || [];
 
   // Check Profile Completion
-  const isProfileComplete = profile.fullName && profile.avatarUrl && profile.location;
+  const isProfileComplete = profile.full_name && profile.avatar_url && profile.location;
   if (isProfileComplete && !currentBadges.includes(BADGES.PROFILE_COMPLETE)) {
     newBadges.push(BADGES.PROFILE_COMPLETE);
     pointsEarned += 100;
   }
 
   // Check First Pet
-  if (profile.pets.length > 0 && !currentBadges.includes(BADGES.FIRST_PET)) {
+  if (petRows && petRows.length > 0 && !currentBadges.includes(BADGES.FIRST_PET)) {
     newBadges.push(BADGES.FIRST_PET);
     pointsEarned += 50;
   }
 
   // Update profile if new rewards
   if (pointsEarned > 0 || newBadges.length > 0) {
-    await db.profile.update({
-      where: { id: userId },
-      data: {
-        petPoints: { increment: pointsEarned },
-        badges: { push: newBadges }
-      }
-    });
+    const updatedBadges = [...currentBadges, ...newBadges];
+    const newPoints = (profile.pet_points || 0) + pointsEarned;
+    
+    await supabaseAdmin
+      .from('profiles')
+      .update({
+        pet_points: newPoints,
+        badges: updatedBadges
+      })
+      .eq('id', userId);
+
     revalidatePath('/profile');
     return { success: true, newPoints: pointsEarned, newBadges };
   }
